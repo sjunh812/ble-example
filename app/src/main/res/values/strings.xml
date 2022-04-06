@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">BLE</string>
+    <!-- Bluetooth -->
+    <string name="ble_not_supported">해당 기기는 BLE를 지원하지 않습니다.</string>
+    <string name="bluetooth_on">블루투스가 켜져있습니다.</string>
+    <string name="bluetooth_off">블루투스가 꺼져있습니다.</string>
+    <string name="request_bluetooth_on">앱 사용을 위해 블루투스를 켜주세요.</string>
+    <!-- Permission -->
+    <string name="need_location_permission">위치 권한 필요</string>
+    <string name="request_location_permission">앱 기능 사용을 위해 위치 권한을 허용해주세요.</string>
+    <string name="need_bluetooth_permission">블루투스 권한 필요</string>
+    <string name="request_bluetooth_permission">앱 기능 사용을 위해 블루투스 권한을 허용해주세요.</string>
+    <string name="need_bluetooth_scan_permission">기기검색 권한 필요</string>
+    <string name="request_bluetooth_scan_permission">앱 기능 사용을 위해 기기검색 권한을 허용해주세요.</string>
+    <!-- etc -->
+    <string name="yes">네</string>
+    <string name="no">아니오</string>
+</resources>
