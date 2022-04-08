@@ -9,43 +9,53 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import org.sjhstudio.ble.BleApplication.Companion.requestPermission
+import org.sjhstudio.ble.adapter.ScanResultAdapter
 import org.sjhstudio.ble.bluetooth.BleScanResultListener
 import org.sjhstudio.ble.bluetooth.BleUtils
 import org.sjhstudio.ble.databinding.ActivityMainBinding
+import org.sjhstudio.ble.util.BaseActivity
 import org.sjhstudio.ble.util.Utils
 
 class MainActivity : BaseActivity(), BleScanResultListener {
 
     private lateinit var binding: ActivityMainBinding
 
+    private lateinit var scanResultAdapter: ScanResultAdapter
+
+    @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        requestPermission(this)
+        Utils.checkBleUtilsSingleton(this)
+        initUI()
+    }
+
+    @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
+    fun initUI() {
         binding.toolbar.apply {
             title = "BLE"
             setTitleTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
         }
+        scanResultAdapter = ScanResultAdapter()
+        binding.scanResultRv.apply {
+            adapter = scanResultAdapter
+            layoutManager = LinearLayoutManager(this@MainActivity)
+        }
 
-        requestPermission(this)
-        testSingleton()
-
-        binding.scanBtn.setOnClickListener { scan() }
-    }
-
-    fun testSingleton() {
-        val singleton1 = BleUtils.getInstance(this)
-        val singleton2 = BleUtils.getInstance(this)
-
-        println("xxx singleton1 : $singleton1")
-        println("xxx singleton2 : $singleton2")
+        binding.scanBtn.setOnClickListener {
+            scan()
+        }
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_SCAN")
     fun scan() {
         binding.scanBtn.isEnabled = false
+        scanResultAdapter.clearItems()
         if(BleUtils.getInstance(this).checkBluetoothEnabled()) {
 //            Snackbar.make(binding.toolbar, R.string.bluetooth_on, 1000).show()
             if(Utils.checkPermissionGranted(this, Manifest.permission.BLUETOOTH_SCAN)) {
@@ -73,13 +83,35 @@ class MainActivity : BaseActivity(), BleScanResultListener {
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        grantResults.forEach {
+            if(it == -1) {
+                binding.scanBtn.isEnabled = false
+                binding.scanBtn.text = getString(R.string.check_permission)
+                return
+            }
+        }
+    }
+
     override fun onBatchScanResults(results: MutableList<ScanResult>?) {
 
     }
 
     override fun onScanResult(result: ScanResult?) {
         if(Utils.checkPermissionGranted(this, Manifest.permission.BLUETOOTH_CONNECT)) {
-
+            try {
+                result?.device?.name?.let {
+                    scanResultAdapter.addItem(it)
+                }
+            } catch(e: SecurityException) {
+                e.printStackTrace()
+                Snackbar.make(binding.scanResultRv, getString(R.string.request_bluetooth_permission), 1500).show()
+            }
         }
     }
 
@@ -89,8 +121,8 @@ class MainActivity : BaseActivity(), BleScanResultListener {
 
     override fun onScanFinished()  {
         launch {
+            println("xxx onScanFinished() : 스캔완료")
             binding.scanBtn.isEnabled = true
-            println("xxx ${BleUtils.getInstance(this@MainActivity).bleList}")
         }
     }
 

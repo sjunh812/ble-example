@@ -27,7 +27,6 @@ class BleUtils private constructor(): ScanCallback(), CoroutineScope {
 
         @SuppressLint("StaticFieldLeak")
         private var instance: BleUtils? = null
-        @SuppressLint("StaticFieldLeak")
 
         fun getInstance(context: Context): BleUtils {
             return instance ?: synchronized(this) {

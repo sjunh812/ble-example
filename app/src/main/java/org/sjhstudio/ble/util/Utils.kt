@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import org.sjhstudio.ble.R
+import org.sjhstudio.ble.bluetooth.BleUtils
 import kotlin.math.roundToInt
 
 class Utils {
@@ -27,6 +28,12 @@ class Utils {
 
         fun checkPermissionGranted(context: Context, permission: String): Boolean {
             return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        }
+
+        fun checkBleUtilsSingleton(context: Context) {
+            val singleton1 = BleUtils.getInstance(context)
+            val singleton2 = BleUtils.getInstance(context)
+            println("xxx singleton1($singleton1), singleton2($singleton2)")
         }
 
         fun showYesOrNoDialog(

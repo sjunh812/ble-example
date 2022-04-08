@@ -24,21 +24,22 @@
             android:layout_height="match_parent"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/scan_result_rv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_above="@+id/scan_btn"
                 android:layout_alignParentTop="true"
-                android:layout_marginBottom="10dp"
-                android:layout_above="@+id/scan_btn" />
+                android:layout_marginBottom="10dp" />
 
             <Button
                 android:id="@+id/scan_btn"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
                 android:layout_alignParentBottom="true"
                 android:text="@string/scan_bluetooth" />
 

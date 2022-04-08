@@ -1,4 +1,4 @@
-package org.sjhstudio.ble
+package org.sjhstudio.ble.util
 
 import android.Manifest
 import android.content.Intent
@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
-import org.sjhstudio.ble.util.Utils
+import org.sjhstudio.ble.R
 import kotlin.coroutines.CoroutineContext
 
 open class BaseActivity: AppCompatActivity(), View.OnClickListener,
@@ -51,8 +51,9 @@ open class BaseActivity: AppCompatActivity(), View.OnClickListener,
                     }
                 }
 
-                Manifest.permission.BLUETOOTH_CONNECT -> {
-                    println("xxx BLUETOOTH_CONNECT : ${grantResults[index]}")
+                Manifest.permission.BLUETOOTH_SCAN -> {
+                    // scan, connect, advertise 모두 기기검색 권한으로 묶여있음.
+                    println("xxx BLUETOOTH_SCAN : ${grantResults[index]}")
                     if(grantResults[index] != 0) {
                         Utils.showYesOrNoDialog(this,
                             getString(R.string.need_bluetooth_permission),
@@ -70,30 +71,6 @@ open class BaseActivity: AppCompatActivity(), View.OnClickListener,
                         )
                     }
                 }
-
-                Manifest.permission.BLUETOOTH_SCAN -> {
-                    println("xxx BLUETOOTH_SCAN : ${grantResults[index]}")
-                    if(grantResults[index] != 0) {
-                        Utils.showYesOrNoDialog(this,
-                            getString(R.string.need_bluetooth_scan_permission),
-                            getString(R.string.request_bluetooth_scan_permission),
-                            { _, _ ->
-                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                val uri = Uri.fromParts("package", packageName, null)
-
-                                intent.data = uri
-                                bluetoothScanPermissionResult.launch(intent)
-                            },
-                            { _, _ ->
-                                Snackbar.make(findViewById(android.R.id.content), getString(R.string.request_bluetooth_scan_permission), 1500).show()
-                            }
-                        )
-                    }
-                }
-
-                Manifest.permission.BLUETOOTH_ADVERTISE -> {
-                    println("xxx BLUETOOTH_ADVERTISE : ${grantResults[index]}")
-                }
             }
 
         }
@@ -102,7 +79,7 @@ open class BaseActivity: AppCompatActivity(), View.OnClickListener,
     private val locationPermissionResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { ar ->
-        if(ar.resultCode == RESULT_OK) {
+        if(Utils.checkPermissionGranted(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             println("xxx locationPermissionResult OK!!")
         } else {
             Snackbar.make(findViewById(android.R.id.content), getString(R.string.request_location_permission), 1500).show()
@@ -112,20 +89,13 @@ open class BaseActivity: AppCompatActivity(), View.OnClickListener,
     private val bluetoothPermissionResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { ar ->
-        if(ar.resultCode == RESULT_OK) {
-            println("xxx bluetoothPermissionResult OK!!")
-        } else {
-            Snackbar.make(findViewById(android.R.id.content), getString(R.string.request_bluetooth_permission), 1500).show()
-        }
-    }
-
-    private val bluetoothScanPermissionResult = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { ar ->
-        if(ar.resultCode == RESULT_OK) {
+        if(Utils.checkPermissionGranted(this, Manifest.permission.BLUETOOTH_SCAN) &&
+            Utils.checkPermissionGranted(this, Manifest.permission.BLUETOOTH_CONNECT) &&
+            Utils.checkPermissionGranted(this, Manifest.permission.BLUETOOTH_ADVERTISE)
+        ) {
             println("xxx bluetoothScanPermissionResult OK!!")
         } else {
-            Snackbar.make(findViewById(android.R.id.content), getString(R.string.request_bluetooth_scan_permission), 1500).show()
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.request_bluetooth_permission), 1500).show()
         }
     }
 
